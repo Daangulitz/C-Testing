@@ -6,50 +6,54 @@
 #include <map>
 #include <ranges>
 #include <algorithm>
+#include <queue>
+#include <set>
 
 using namespace std;
 
 int main() {
-    ifstream MyReadFile("/home/daantje/Documents/Unreal Projects/C-Testing/Riks-Lessen/input.txt");
+    std::ifstream MyReadFile("/home/daantje/Documents/Unreal Projects/C-Testing/Riks-Lessen/input.txt");
     if (!MyReadFile) {
-    cerr << "Kan bestand niet openen" << endl;
-    return 1;
-}
-    string myText;
-    string lastname;
-    bool hoofdbool = false;
-    int Count = 0;
+        std::cerr << "Kan bestand niet openen" << std::endl;
+        return 1;
+    }
+    std::string myText;
+    std::map<std::string, std::vector<std::string>> volgende;
 
-    while (getline (MyReadFile, myText)){
-        istringstream iss(myText);
-        vector<string> delen;
-        string deel;
+    while (std::getline(MyReadFile, myText)) {
+        std::istringstream iss(myText);
+        std::vector<std::string> delen;
+        std::string deel;
 
-        while (iss >> deel){
+        while (iss >> deel) {
             delen.push_back(deel);
         }
 
         if (delen.size() >= 3) {
-            string eerstenaam = delen[0];
-            string tweedenaam = delen[2];
+           volgende[delen[0]].push_back(delen[2]);
+        }
+    }
+    MyReadFile.close();
 
-            
-            if(hoofdbool){
-                Count++;
+    set<string> bezocht;
+    queue<string> wachtrij;
+
+    bezocht.insert("HOOFD");
+    wachtrij.push("HOOFD");
+
+    while (!wachtrij.empty()) {
+        string huidig = wachtrij.front();
+        wachtrij.pop();
+
+        for (const string& buur : volgende[huidig]) {
+            if (bezocht.find(buur) == bezocht.end()) {
+                bezocht.insert(buur);
+                wachtrij.push(buur);
             }
-
-            if(eerstenaam == "HOOFD"){
-                hoofdbool = true;
-                Count--;
-            }else if (tweedenaam == "HOOFD"){
-                hoofdbool = false;
-                Count--;
-            }
-
         }
     }
 
-    MyReadFile.close();
-    cout << Count << endl;
+    cout << bezocht.size() - 1 <<endl;
+
     return 0;
 }
